@@ -27,9 +27,8 @@ export default function Quiz({ questions }) {
     setCorrOption(correct);
     setIsOptionsDisabled(true);
 
-    if (!Array.isArray(corrOption)) {
+    if (selected == correct) {
       setScore((prev) => prev + 1);
-    } else {
     }
     setShowNext(true);
   };
@@ -126,6 +125,7 @@ export default function Quiz({ questions }) {
         {questions[currQues]?.option.map((item) => {
           return (
             <TouchableOpacity
+              disabled={isOptionsDisabled}
               onPress={() => validateAnswer(item)}
               key={item}
               style={{
