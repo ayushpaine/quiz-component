@@ -11,6 +11,7 @@ import { COLORS, SIZES } from "../constants/theme";
 import { Platform } from "react-native";
 import { StatusBar } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import Slider from "@react-native-community/slider";
 
 export default function Quiz({ questions }) {
   const [currQues, setCurrQues] = useState(0);
@@ -20,6 +21,8 @@ export default function Quiz({ questions }) {
   const [score, setScore] = useState(0);
   const [showNext, setShowNext] = useState(false);
   const [showScore, setShowScore] = useState(false);
+  const [range, setRange] = useState(null);
+  const [showResultRange, setShowResultRange] = useState("");
 
   const validateAnswer = (selected) => {
     let correct = questions[currQues]["ans"];
@@ -29,6 +32,22 @@ export default function Quiz({ questions }) {
 
     if (selected == correct) {
       setScore((prev) => prev + 1);
+    }
+    setShowNext(true);
+  };
+
+  const validateAnswerRange = (selected) => {
+    let correctL = questions[currQues]["ans"][0];
+    let correctR = questions[currQues]["ans"][1];
+    setCurrOptionSelected(selected);
+
+    setIsOptionsDisabled(true);
+
+    if (selected >= correctL && selected <= correctR) {
+      setScore((prev) => prev + 1);
+      setShowResultRange("success");
+    } else {
+      setShowResultRange("error");
     }
     setShowNext(true);
   };
@@ -54,6 +73,7 @@ export default function Quiz({ questions }) {
       setCorrOption(null);
       setIsOptionsDisabled(false);
       setShowNext(false);
+      setShowResultRange("");
     }
   };
 
@@ -80,6 +100,30 @@ export default function Quiz({ questions }) {
     } else {
       return null;
     }
+  };
+
+  const renderValidateRange = () => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          validateAnswerRange(range);
+          setShowNext(true);
+        }}
+        style={{
+          marginTop: 20,
+          width: "100%",
+          backgroundColor: COLORS.accent,
+          padding: 20,
+          borderRadius: 5,
+        }}
+      >
+        <Text
+          style={{ fontSize: 20, color: COLORS.white, textAlign: "center" }}
+        >
+          Validate
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
   const renderQuestion = () => {
@@ -122,73 +166,153 @@ export default function Quiz({ questions }) {
   const renderOptions = () => {
     return (
       <View>
-        {questions[currQues]?.option.map((item) => {
-          return (
-            <TouchableOpacity
-              disabled={isOptionsDisabled}
-              onPress={() => validateAnswer(item)}
-              key={item}
-              style={{
-                borderWidth: 3,
-                borderColor:
-                  item == corrOption
-                    ? COLORS.success
-                    : item == currOptionSelected
-                    ? COLORS.error
-                    : COLORS.secondary + "40",
-                backgroundColor:
-                  item == corrOption
-                    ? COLORS.success + "20"
-                    : item == currOptionSelected
-                    ? COLORS.error + "20"
-                    : COLORS.secondary + "20",
-                backgroundColor: COLORS.secondary + "20",
-                height: 60,
-                borderRadius: 20,
-                marginVertical: 10,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                paddingHorizontal: 20,
-              }}
-            >
-              <Text style={{ fontSize: 20, color: COLORS.white }}>{item}</Text>
-              {item == corrOption ? (
-                <View
+        {questions[currQues]?.type === "single" ? (
+          questions[currQues]?.option.map((item) => {
+            return (
+              <TouchableOpacity
+                disabled={isOptionsDisabled}
+                onPress={() => validateAnswer(item)}
+                key={item}
+                style={{
+                  borderWidth: 3,
+                  borderColor:
+                    item == corrOption
+                      ? COLORS.success
+                      : item == currOptionSelected
+                      ? COLORS.error
+                      : COLORS.secondary + "40",
+                  backgroundColor:
+                    item == corrOption
+                      ? COLORS.success + "20"
+                      : item == currOptionSelected
+                      ? COLORS.error + "20"
+                      : COLORS.secondary + "20",
+                  backgroundColor: COLORS.secondary + "20",
+                  height: 60,
+                  borderRadius: 20,
+                  marginVertical: 10,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 20,
+                }}
+              >
+                <Text style={{ fontSize: 20, color: COLORS.white }}>
+                  {item}
+                </Text>
+                {item == corrOption ? (
+                  <View
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 30 / 2,
+                      backgroundColor: COLORS.success,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="check"
+                      style={{ color: COLORS.white, fontSize: 20 }}
+                    />
+                  </View>
+                ) : item == currOptionSelected ? (
+                  <View
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 30 / 2,
+                      backgroundColor: COLORS.error,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="close"
+                      style={{ color: COLORS.white, fontSize: 20 }}
+                    />
+                  </View>
+                ) : null}
+              </TouchableOpacity>
+            );
+          })
+        ) : questions[currQues]?.type === "range" ? (
+          <View
+            style={{
+              paddingTop: SIZES.height / 16,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <View style={{ display: "flex", flexDirection: "row" }}>
+              <Text
+                style={{
+                  color: COLORS.white,
+                  textAlign: "center",
+                  fontSize: 30,
+                  fontWeight: "bold",
+                }}
+              >
+                {range}{" "}
+              </Text>
+
+              <View>
+                {showResultRange === "success" ? (
+                  <View
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 30 / 2,
+                      backgroundColor: COLORS.success,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="check"
+                      style={{ color: COLORS.white, fontSize: 20 }}
+                    />
+                  </View>
+                ) : showResultRange === "error" ? (
+                  <View
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 30 / 2,
+                      backgroundColor: COLORS.error,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name="close"
+                      style={{ color: COLORS.white, fontSize: 20 }}
+                    />
+                  </View>
+                ) : null}
+              </View>
+            </View>
+            {!isOptionsDisabled ? (
+              <>
+                <Slider
                   style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: 30 / 2,
-                    backgroundColor: COLORS.success,
-                    justifyContent: "center",
-                    alignItems: "center",
+                    width: (SIZES.width * 7) / 8,
+                    height: SIZES.height / 16,
                   }}
-                >
-                  <MaterialCommunityIcons
-                    name="check"
-                    style={{ color: COLORS.white, fontSize: 20 }}
-                  />
-                </View>
-              ) : item == currOptionSelected ? (
-                <View
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: 30 / 2,
-                    backgroundColor: COLORS.error,
-                    justifyContent: "center",
-                    alignItems: "center",
+                  minimumValue={questions[currQues]?.option[0]}
+                  maximumValue={questions[currQues]?.option[1]}
+                  onValueChange={(value) => {
+                    setRange(value);
                   }}
-                >
-                  <MaterialCommunityIcons
-                    name="close"
-                    style={{ color: COLORS.white, fontSize: 20 }}
-                  />
-                </View>
-              ) : null}
-            </TouchableOpacity>
-          );
-        })}
+                  step={1}
+                />
+                {renderValidateRange()}
+              </>
+            ) : null}
+          </View>
+        ) : null}
       </View>
     );
   };
