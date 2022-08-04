@@ -4,9 +4,10 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Modal,
+  FlatList,
 } from "react-native";
 import { StyleSheet } from "react-native-web";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { COLORS, SIZES } from "../constants/theme";
 import { Platform } from "react-native";
 import { StatusBar } from "react-native";
@@ -23,6 +24,16 @@ export default function Quiz({ questions }) {
   const [showScore, setShowScore] = useState(false);
   const [range, setRange] = useState(null);
   const [showResultRange, setShowResultRange] = useState("");
+  const [selectedMulti, setSelectedMulti] = useState([]);
+
+  const handleClickMulti = (selected) => {
+    const idx = selectedMulti.findIndex((item) => item === selected);
+    if (idx > -1) {
+      setSelectedMulti(selectedMulti.filter((item) => item !== selected));
+    } else {
+      setSelectedMulti((prev) => [...prev, selected]);
+    }
+  };
 
   const validateAnswer = (selected) => {
     let correct = questions[currQues]["ans"];
@@ -312,6 +323,35 @@ export default function Quiz({ questions }) {
               </>
             ) : null}
           </View>
+        ) : questions[currQues]?.type === "multi" ? (
+          <>
+            <FlatList
+              data={questions[currQues]?.option}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  disabled={isOptionsDisabled}
+                  style={{
+                    borderWidth: 3,
+                    borderColor: COLORS.secondary + "40",
+                    backgroundColor: COLORS.secondary + "20",
+                    height: 60,
+                    borderRadius: 20,
+                    marginVertical: 10,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingHorizontal: 20,
+                  }}
+                  onPress={() => handleClickMulti(item)}
+                >
+                  <Text style={{ fontSize: 20, color: COLORS.white }}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </>
         ) : null}
       </View>
     );
