@@ -136,6 +136,29 @@ export default function Quiz({ questions }) {
       </TouchableOpacity>
     );
   };
+  const renderValidateMulti = () => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedMulti([]);
+          setShowNext(true);
+        }}
+        style={{
+          marginTop: 20,
+          width: "100%",
+          backgroundColor: COLORS.accent,
+          padding: 20,
+          borderRadius: 5,
+        }}
+      >
+        <Text
+          style={{ fontSize: 20, color: COLORS.white, textAlign: "center" }}
+        >
+          Validate
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   const renderQuestion = () => {
     return (
@@ -351,6 +374,35 @@ export default function Quiz({ questions }) {
                 </TouchableOpacity>
               )}
             />
+            <FlatList
+              data={selectedMulti}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <View
+                  style={{
+                    alignSelf: "center",
+                    padding: 6,
+                    margin: 2,
+                    paddingHorizontal: 12,
+                    borderColor: "gray",
+                    borderWidth: 1,
+                    borderRadius: 20,
+                    backgroundColor: "black",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      textAlign: "center",
+                      color: COLORS.white,
+                    }}
+                  >
+                    {item}
+                  </Text>
+                </View>
+              )}
+            />
+            {selectedMulti.length !== 0 ? renderValidateMulti() : null}
           </>
         ) : null}
       </View>
