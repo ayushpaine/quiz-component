@@ -421,17 +421,19 @@ export default function Quiz({ questions }) {
             />
             {isOptionsDisabled ? (
               <>
-                <View style={{}}>
-                  <Text
-                    style={{
-                      color: COLORS.success,
-                      fontWeight: "bold",
-                      textAlign: "center",
-                    }}
-                  >
-                    {multiCorrect} {multiCorrect > 1 ? "options" : "option"}{" "}
-                    correct
-                  </Text>
+                <View>
+                  {multiCorrect ? (
+                    <Text
+                      style={{
+                        color: COLORS.success,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      {multiCorrect} {multiCorrect > 1 ? "options" : "option"}{" "}
+                      correct
+                    </Text>
+                  ) : null}
 
                   {selectedMulti.length - multiCorrect ? (
                     <Text
