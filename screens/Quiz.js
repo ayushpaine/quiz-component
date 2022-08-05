@@ -25,6 +25,7 @@ export default function Quiz({ questions }) {
   const [range, setRange] = useState(null);
   const [showResultRange, setShowResultRange] = useState("");
   const [selectedMulti, setSelectedMulti] = useState([]);
+  const [multiCorrect, setMultiCorrect] = useState(null);
 
   const handleClickMulti = (selected) => {
     const idx = selectedMulti.findIndex((item) => item === selected);
@@ -45,6 +46,21 @@ export default function Quiz({ questions }) {
       setScore((prev) => prev + 1);
     }
     setShowNext(true);
+  };
+
+  const validateAnswerMulti = (selected) => {
+    let correct = questions[currQues]["ans"];
+    setIsOptionsDisabled(true);
+
+    const numberOfCorrect = correct.reduce(
+      (prev, curr) => (selected.includes(curr) ? (prev += 1) : prev),
+      0
+    );
+    setMultiCorrect(numberOfCorrect);
+
+    if (!(selected.length > multiCorrect)) {
+      setScore((prev) => prev + selected.length / multiCorrect);
+    }
   };
 
   const validateAnswerRange = (selected) => {
@@ -85,6 +101,7 @@ export default function Quiz({ questions }) {
       setIsOptionsDisabled(false);
       setShowNext(false);
       setShowResultRange("");
+      setSelectedMulti([]);
     }
   };
 
@@ -140,7 +157,7 @@ export default function Quiz({ questions }) {
     return (
       <TouchableOpacity
         onPress={() => {
-          setSelectedMulti([]);
+          validateAnswerMulti(selectedMulti);
           setShowNext(true);
         }}
         style={{
@@ -402,7 +419,41 @@ export default function Quiz({ questions }) {
                 </View>
               )}
             />
-            {selectedMulti.length !== 0 ? renderValidateMulti() : null}
+            {isOptionsDisabled ? (
+              <>
+                <View style={{}}>
+                  <Text
+                    style={{
+                      color: COLORS.success,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    {multiCorrect} {multiCorrect > 1 ? "options" : "option"}{" "}
+                    correct
+                  </Text>
+
+                  {selectedMulti.length - multiCorrect ? (
+                    <Text
+                      style={{
+                        color: COLORS.error,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
+                      {selectedMulti.length - multiCorrect}{" "}
+                      {selectedMulti.length - multiCorrect > 1
+                        ? "options"
+                        : "option"}{" "}
+                      incorrect
+                    </Text>
+                  ) : null}
+                </View>
+              </>
+            ) : null}
+            {selectedMulti.length !== 0 && !isOptionsDisabled
+              ? renderValidateMulti()
+              : null}
           </>
         ) : null}
       </View>
